@@ -51,65 +51,65 @@ export default function App() {
 
   // Chat AI chuyên về phim
   const sendMessage = async () => {
-  if (!input) return;
-  const userMsg = { role: "user", text: input };
-  setMessages((prev) => [...prev, userMsg]);
+    if (!input) return;
+    const userMsg = { role: "user", text: input };
+    setMessages((prev) => [...prev, userMsg]);
 
-  // Thêm bot "đang gõ..."
-  const loadingMsg = { role: "bot", reply: { type: "text", text: "⏳ Đang tìm phim..." } };
-  setMessages((prev) => [...prev, loadingMsg]);
+    // Thêm bot "đang gõ..."
+    const loadingMsg = { role: "bot", reply: { type: "text", text: "⏳ Đang tìm phim..." } };
+    setMessages((prev) => [...prev, loadingMsg]);
 
-  let reply = { type: "text", text: "Xin lỗi, mình chưa hiểu câu hỏi." };
+    let reply = { type: "text", text: "Xin lỗi, mình chưa hiểu câu hỏi." };
 
-  try {
-    const text = input.toLowerCase();
-    let res, movies;
+    try {
+      const text = input.toLowerCase();
+      let res, movies;
 
-    if (/hành động|action/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=action&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "🎬 Gợi ý phim hành động:", data: movies };
-    } else if (/hài|comedy/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=comedy&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "😂 Gợi ý phim hài:", data: movies };
-    } else if (/tình cảm|romance/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=romance&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "🎬 Gợi ý phim tình cảm:", data: movies };
-    } else if (/kinh dị|horror/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=horror&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "🎬 Gợi ý phim kinh dị:", data: movies };
-    } else if (/hoạt hình|animation/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=animation&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "🎬 Gợi ý phim hoạt hình:", data: movies };
-    } else if (/Khoa học viễn tưởng|sci-fi/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=sci-fi&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "🎬 Gợi ý phim Khoa học viễn tưởng:", data: movies };
-    } else if (/Phiêu lưu|adventure/gi.test(text)) {
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=adventure&type=movie`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = { type: "list", title: "🎬 Gợi ý phim Phiêu lưu:", data: movies };
-    } else if (/tìm phim|phim/gi.test(text)) {
-      const keyword = text.replace(/tìm phim|phim/gi, "").trim();
-      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${keyword}`);
-      movies = res.data.Search?.slice(0, 3) || [];
-      reply = movies.length > 0
-        ? { type: "list", title: "🎬 Mình tìm được những phim này:", data: movies }
-        : { type: "text", text: "Không tìm thấy phim phù hợp 😢" };
+      if (/hành động|action/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=action&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "🎬 Gợi ý phim hành động:", data: movies };
+      } else if (/hài|comedy/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=comedy&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "😂 Gợi ý phim hài:", data: movies };
+      } else if (/tình cảm|romance/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=romance&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "🎬 Gợi ý phim tình cảm:", data: movies };
+      } else if (/kinh dị|horror/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=horror&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "🎬 Gợi ý phim kinh dị:", data: movies };
+      } else if (/hoạt hình|animation/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=animation&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "🎬 Gợi ý phim hoạt hình:", data: movies };
+      } else if (/Khoa học viễn tưởng|sci-fi/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=sci-fi&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "🎬 Gợi ý phim Khoa học viễn tưởng:", data: movies };
+      } else if (/Phiêu lưu|adventure/gi.test(text)) {
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=adventure&type=movie`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = { type: "list", title: "🎬 Gợi ý phim Phiêu lưu:", data: movies };
+      } else if (/tìm phim|phim/gi.test(text)) {
+        const keyword = text.replace(/tìm phim|phim/gi, "").trim();
+        res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${keyword}`);
+        movies = res.data.Search?.slice(0, 3) || [];
+        reply = movies.length > 0
+          ? { type: "list", title: "🎬 Mình tìm được những phim này:", data: movies }
+          : { type: "text", text: "Không tìm thấy phim phù hợp 😢" };
+      }
+    } catch (err) {
+      console.error(err);
+      reply = { type: "text", text: "Có lỗi khi tìm phim. 😢" };
     }
-  } catch (err) {
-    console.error(err);
-    reply = { type: "text", text: "Có lỗi khi tìm phim. 😢" };
-  }
 
-  // Xóa tin nhắn loading, thêm kết quả
-  setMessages((prev) => [...prev.filter((m) => m !== loadingMsg), { role: "bot", reply }]);
-  setInput("");
-};
+    // Xóa tin nhắn loading, thêm kết quả
+    setMessages((prev) => [...prev.filter((m) => m !== loadingMsg), { role: "bot", reply }]);
+    setInput("");
+  };
 
 
   return (
