@@ -8,15 +8,22 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [selectedMovie, setSelectedMovie] = useState(null); // ⭐ chi tiết phim
-  const [showModal, setShowModal] = useState(false); // ⭐ popup
 
-  const API_KEY = "bc4af0f7"; 
+  // State cho modal phim chi tiết
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
+  const API_KEY = "bc4af0f7"; // Thay bằng API key OMDb của bạn
+
+  // Khi load lần đầu → bot nhắn trước
   useEffect(() => {
-    setMessages([{ role: "bot", text: "Xin chào! Hôm nay bạn muốn tìm phim gì? 🎬" }]);
+    const welcomeMsg = {
+      role: "bot",
+      text: "Xin chào! Hôm nay bạn muốn tìm phim gì? 🎬",
+    };
+    setMessages([welcomeMsg]);
   }, []);
 
+  // Tìm phim theo tên
   const searchMovies = async () => {
     if (!query) return;
     try {
@@ -30,44 +37,84 @@ export default function App() {
     }
   };
 
-  // ⭐ Lấy chi tiết phim khi click
+  // Lấy chi tiết phim khi click
   const fetchMovieDetail = async (id) => {
     try {
       const res = await axios.get(
         `https://www.omdbapi.com/?apikey=${API_KEY}&i=${id}&plot=full`
       );
       setSelectedMovie(res.data);
-      setShowModal(true); // mở popup
     } catch (err) {
       console.error(err);
     }
   };
 
+  // Chat AI chuyên về phim
   const sendMessage = async () => {
-    if (!input) return;
-    const userMsg = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMsg]);
+  if (!input) return;
+  const userMsg = { role: "user", text: input };
+  setMessages((prev) => [...prev, userMsg]);
 
-    let reply = "Xin lỗi, mình chưa hiểu câu hỏi.";
-    try {
-      const text = input.toLowerCase();
-      if (/hành động|action/.test(text)) {
-        const res = await axios.get(
-          `https://www.omdbapi.com/?apikey=${API_KEY}&s=action&type=movie`
-        );
-        const movies = res.data.Search?.slice(0, 3) || [];
-        reply = "🎬 Gợi ý phim hành động:\n" + movies.map(m => `${m.Title} (${m.Year})`).join("\n");
-      }
-    } catch {
-      reply = "Có lỗi khi tìm phim. 😢";
+  // Thêm bot "đang gõ..."
+  const loadingMsg = { role: "bot", reply: { type: "text", text: "⏳ Đang tìm phim..." } };
+  setMessages((prev) => [...prev, loadingMsg]);
+
+  let reply = { type: "text", text: "Xin lỗi, mình chưa hiểu câu hỏi." };
+
+  try {
+    const text = input.toLowerCase();
+    let res, movies;
+
+    if (/hành động|action/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=action&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "🎬 Gợi ý phim hành động:", data: movies };
+    } else if (/hài|comedy/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=comedy&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "😂 Gợi ý phim hài:", data: movies };
+    } else if (/tình cảm|romance/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=romance&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "🎬 Gợi ý phim tình cảm:", data: movies };
+    } else if (/kinh dị|horror/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=horror&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "🎬 Gợi ý phim kinh dị:", data: movies };
+    } else if (/hoạt hình|animation/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=animation&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "🎬 Gợi ý phim hoạt hình:", data: movies };
+    } else if (/Khoa học viễn tưởng|sci-fi/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=sci-fi&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "🎬 Gợi ý phim Khoa học viễn tưởng:", data: movies };
+    } else if (/Phiêu lưu|adventure/gi.test(text)) {
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=adventure&type=movie`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = { type: "list", title: "🎬 Gợi ý phim Phiêu lưu:", data: movies };
+    } else if (/tìm phim|phim/gi.test(text)) {
+      const keyword = text.replace(/tìm phim|phim/gi, "").trim();
+      res = await axios.get(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${keyword}`);
+      movies = res.data.Search?.slice(0, 3) || [];
+      reply = movies.length > 0
+        ? { type: "list", title: "🎬 Mình tìm được những phim này:", data: movies }
+        : { type: "text", text: "Không tìm thấy phim phù hợp 😢" };
     }
+  } catch (err) {
+    console.error(err);
+    reply = { type: "text", text: "Có lỗi khi tìm phim. 😢" };
+  }
 
-    setMessages((prev) => [...prev, { role: "bot", text: reply }]);
-    setInput("");
-  };
+  // Xóa tin nhắn loading, thêm kết quả
+  setMessages((prev) => [...prev.filter((m) => m !== loadingMsg), { role: "bot", reply }]);
+  setInput("");
+};
+
 
   return (
     <div className="app">
+      {/* Tiêu đề lớn */}
       <h1 className="main-title">Hệ Thống Tìm Kiếm Phim Tích Hợp AI 🎬</h1>
 
       {/* Khung tìm phim */}
@@ -82,17 +129,19 @@ export default function App() {
           />
           <button onClick={searchMovies}>Tìm</button>
         </div>
-
-        {/* Danh sách phim */}
         <div className="movie-list">
           {movies.map((m) => (
             <div
               key={m.imdbID}
               className="movie-card"
-              onClick={() => fetchMovieDetail(m.imdbID)} // click lấy chi tiết
+              onClick={() => fetchMovieDetail(m.imdbID)}
             >
               <img
-                src={m.Poster !== "N/A" ? m.Poster : "https://via.placeholder.com/80x120"}
+                src={
+                  m.Poster !== "N/A"
+                    ? m.Poster
+                    : "https://via.placeholder.com/80x120"
+                }
                 alt={m.Title}
               />
               <div className="info">
@@ -104,29 +153,14 @@ export default function App() {
         </div>
       </div>
 
-      {/* ⭐ Modal hiển thị chi tiết phim */}
-      {showModal && selectedMovie && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
-            <h2 className="font-bold text-center text-[18px] uppercase pb-1">{selectedMovie.Title} ({selectedMovie.Year})</h2>
-            <img
-              src={selectedMovie.Poster !== "N/A" ? selectedMovie.Poster : "https://via.placeholder.com/150"}
-              className="relative left-1/2 -translate-x-1/2 bg-white p-2 rounded-lg shadow-lg mb-1 w-[250px]"
-              alt={selectedMovie.Title}
-            />
-            <p><b>Thể loại:</b> {selectedMovie.Genre}</p>
-            <p><b>Quốc gia:</b> {selectedMovie.Country}</p>
-            <p><b>Đạo diễn:</b> {selectedMovie.Director}</p>
-            <p><b>Diễn viên:</b> {selectedMovie.Actors}</p>
-            <p><b>IMDb:</b> {selectedMovie.imdbRating}</p>
-            <p><b>Nội dung:</b> {selectedMovie.Plot}</p>
-          </div>
+      {/* Chat icon */}
+      {!showChat && (
+        <div className="chat-icon" onClick={() => setShowChat(true)}>
+          🤖
         </div>
       )}
 
-      {/* Chat AI */}
-      {!showChat && <div className="chat-icon" onClick={() => setShowChat(true)}>🤖</div>}
+      {/* Chat widget */}
       {showChat && (
         <div className="chat-widget">
           <div className="chat-header">
@@ -136,7 +170,29 @@ export default function App() {
           <div className="chat-window">
             {messages.map((msg, idx) => (
               <div key={idx} className={`chat-msg ${msg.role}`}>
-                {msg.text.split("\n").map((line,i)=>(<p key={i}>{line}</p>))}
+                {/* Nếu reply là text */}
+                {msg.reply?.type === "text" ? (
+                  <p>{msg.reply.text}</p>
+                ) : msg.reply?.type === "list" ? (
+                  <div>
+                    <p>{msg.reply.title}</p>
+                    {msg.reply.data.map((m) => (
+                      <button
+                        key={m.imdbID}
+                        className="chat-movie-btn"
+                        onClick={() => {
+                          setQuery(m.Title);
+                          searchMovies();
+                          setShowChat(false); // đóng chat để xem kết quả
+                        }}
+                      >
+                        {m.Title} ({m.Year})
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  msg.text?.split("\n").map((line, i) => <p key={i}>{line}</p>)
+                )}
               </div>
             ))}
           </div>
@@ -149,6 +205,43 @@ export default function App() {
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
             <button onClick={sendMessage}>Gửi</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal chi tiết phim */}
+      {selectedMovie && (
+        <div className="modal-overlay" onClick={() => setSelectedMovie(null)}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()} // chặn click trong modal
+          >
+            <button
+              className="modal-close"
+              onClick={() => setSelectedMovie(null)}
+            >
+              ×
+            </button>
+
+            <img
+              src={
+                selectedMovie.Poster !== "N/A"
+                  ? selectedMovie.Poster
+                  : "https://via.placeholder.com/200x300"
+              }
+              alt={selectedMovie.Title}
+            />
+
+            <div className="modal-info">
+              <h2>
+                {selectedMovie.Title} ({selectedMovie.Year})
+              </h2>
+              <p><b>Đạo diễn:</b> {selectedMovie.Director}</p>
+              <p><b>Diễn viên:</b> {selectedMovie.Actors}</p>
+              <p><b>Thể loại:</b> {selectedMovie.Genre}</p>
+              <p><b>Nội dung:</b> {selectedMovie.Plot}</p>
+              <p><b>IMDb:</b> ⭐ {selectedMovie.imdbRating}</p>
+            </div>
           </div>
         </div>
       )}
