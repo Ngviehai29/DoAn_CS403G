@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/DoAn_CS403G/static/css/main.3e3f764b.css",
+    "main.js": "/DoAn_CS403G/static/js/main.40c8a4b1.js",
+    "static/js/453.2f9b78f9.chunk.js": "/DoAn_CS403G/static/js/453.2f9b78f9.chunk.js",
+    "index.html": "/DoAn_CS403G/index.html",
+    "main.3e3f764b.css.map": "/DoAn_CS403G/static/css/main.3e3f764b.css.map",
+    "main.40c8a4b1.js.map": "/DoAn_CS403G/static/js/main.40c8a4b1.js.map",
+    "453.2f9b78f9.chunk.js.map": "/DoAn_CS403G/static/js/453.2f9b78f9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3e3f764b.css",
+    "static/js/main.40c8a4b1.js"
+  ]
+}
