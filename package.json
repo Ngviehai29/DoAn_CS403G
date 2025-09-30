@@ -43,7 +43,7 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.3.2"
   },
-  "homepage": "https://<Ngviehai29>.github.io/<DoAn_CS403G>",
+  "homepage": "https://Ngviehai29.github.io/DoAn_CS403G",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
